@@ -1,14 +1,12 @@
-
-
-function Comic(uuid, title) {
-  this.uuid = uuid;
+function Comic(id, title, characters) {
+  this.id = id;
   this.title = title;
+  this.characters = characters;
 }
 
-Comic.prototype.withUUID = function (uuid) {
-  return new Comic(uuid, this.title);
+Comic.prototype.withId = function (id) {
+  this.id = id;
+  return this;
 };
-
-
 
 module.exports = Comic;

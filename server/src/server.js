@@ -1,10 +1,8 @@
 var app = require('express')(),
     bodyParser = require('body-parser'),
-    moment = require('moment'),
     cors = require('cors'),
-    uuid = require('node-uuid'),
-    Maybe = require('monet').Maybe,
-    comics = require('./Comics.js')();
+    comics = require('./Comics.js'),
+    characters = require('./Characters.js');
 
 var port = 8001;
 
@@ -20,53 +18,63 @@ app.get('/comics', function (req, res, next) {
   console.log("Serving comics page", page);
   var items = comics.page(from, to);
   res.json({
-    total: comics.size(),
+    total: comics.length(),
     items: items
   });
 });
 
-app.route('/comic/:uuid')
+app.route('/comic/:id')
     .get(function (req, res) {
-      var uuid = req.params.uuid,
-          hits = comics.withUUID(uuid);
-      console.log("Serving comic " + uuid);
-      if (hits.length == 0)
-        res.status(404).json({message: "Comic not found", uuid: uuid});
+      var id = parseInt(req.params.id, 10),
+          comic = comics.withId(id);
+      console.log("Serving comic " + id);
+      if (!comic)
+        res.status(404).json({message: "Comic not found", id: id});
       else
-        res.json(hits[0]);
+        res.json(comic);
     })
     .post(function (req, res) {
       var comic = comics.create(req.body);
-      console.log("Creating new comic with UUID " + comic.uuid);
+      console.log("Creating new comic with Id " + comic.id);
 
       comics.push(comic);
-      res.redirect(301, 'http://' + req.headers.host + '/v2/comic/' + comic.uuid);
+      res.redirect(301, 'http://' + req.headers.host + '/comic/' + comic.id);
     })
     .put(function (req, res) {
-      var uuid = req.params.uuid,
-          changedComic = comics.create(req.body).withUUID(uuid),
-          hits = comics.withUUID(uuid);
-      console.log("Updating comic " + uuid);
+      var id = parseInt(req.params.id),
+          changedComic = comics.create(req.body).withId(id),
+          comic = comics.withId(id);
+      console.log("Updating comic " + id);
 
-      if (hits.length == 0)
-        res.status(404).json({message: "Comic not found", uuid: uuid});
+      if (!comic)
+        res.status(404).json({message: "Comic not found", id: id});
       else {
         comics.replace(changedComic);
-        res.redirect(301, 'http://' + req.headers.host + '/v2/comic/' + changedComic.uuid);
+        res.redirect(301, 'http://' + req.headers.host + '/comic/' + changedComic.id);
       }
     })
     .delete(function (req, res) {
-      var uuid = req.params.uuid,
-          hits = comics.withUUID(uuid);
-      console.log("Deleting comic " + uuid);
+      var id = parseInt(req.params.id),
+          comic = comics.withId(id);
+      console.log("Deleting comic " + id);
 
-      if (hits.length == 0)
-        res.status(404).json({message: "Comic not found", uuid: uuid});
+      if (!comic)
+        res.status(404).json({message: "Comic not found", id: id});
       else {
-        comics.remove(hits[0]);
+        comics.remove(comic);
         res.status(202).end();
       }
     });
+
+app.get('/comic/with-character/:id', function (req, res) {
+  var id = parseInt(req.params.id),
+      character = characters.withId(id);
+
+  if (!character)
+    res.status(404).json({message: "Character not found", id: id});
+  else
+    res.json(comics.withCharacter(character));
+});
 
 app.listen(port);
 
