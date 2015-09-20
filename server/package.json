@@ -1,0 +1,17 @@
+{
+  "name": "curso-izfe",
+  "version": "0.0.0",
+  "description": "",
+  "main": "",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.14.0",
+    "cors": "^2.7.1",
+    "express": "^4.13.3",
+    "faker": "^3.0.1",
+    "moment": "^2.10.6",
+    "monet": "^0.8.6",
+    "node-uuid": "^1.4.3"
+  }
+}
