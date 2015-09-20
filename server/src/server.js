@@ -23,6 +23,10 @@ app.get('/comics', function (req, res, next) {
   });
 });
 
+app.get('/characters', function (req, res, next) {
+  res.json(characters.all());
+});
+
 app.route('/comic/:id')
     .get(function (req, res) {
       var id = parseInt(req.params.id, 10),
