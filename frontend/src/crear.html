@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Marvel: Nuevo comic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="lib/bootstrap/css/bootstrap.css" rel="stylesheet" media="screen">
+  <link href="css/marvel.css" rel="stylesheet">
+  <script src="lib/jquery/jquery.js"></script>
+  <script src="lib/bootstrap/js/bootstrap.js"></script>
+  <script>
+    var server = "http://localhost:8001/";
+    $(document).ready(function(){
+      $.get(server + "characters", function(characters){
+        var $chars = $("#comicChar");
+        characters.forEach(function(character){
+          var id = character.id;
+          var name = character.name;
+          $chars.append($("<option value='"+id+"'>"+name+"</option>"));
+        });
+      });
+
+      $('#submit').click(function(){
+        var ret = true;
+
+        var $comicTitle = $("#comicTitle");
+        if ($comicTitle.val().trim() == "") {
+          $comicTitle.parent().addClass("has-error");
+          ret = false;
+        }
+
+        var $comicChar = $("#comicChar");
+        if ($comicChar.val() == null) {
+          $comicChar.parent().addClass("has-error");
+          ret = false;
+        }
+        return ret;
+      });
+    });
+  </script>
+</head>
+<body>
+
+<header>
+  [<a href="index.html">Buscar</a>][<a href="crear.html">Crear</a>]
+</header>
+<div class="content">
+  <h1>Introduzca un nuevo comic</h1>
+  <form method="get">
+    <div class="form-group">
+      <label for="comicId">Id del comic</label>
+      <input type="number" id="comicId" placeholder="123">
+    </div>
+    <div class="form-group">
+      <label for="comicTitle">Título</label>
+      <input type="text" id="comicTitle" placeholder="Título">
+    </div>
+    <div class="form-group">
+      <label for="comicChar">Personaje</label>
+      <select class="form-control" id="comicChar" multiple>
+      </select>
+    </div>
+    <button id='submit' type="submit" class="btn btn-default">Submit</button>
+  </form>
+
+</div>
+
+</body>
+</html>
