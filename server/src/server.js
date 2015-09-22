@@ -71,13 +71,18 @@ app.route('/comic/:id')
     });
 
 app.get('/comic/with-character/:id', function (req, res) {
-  var id = parseInt(req.params.id),
-      character = characters.withId(id);
+  var count = parseInt(req.query.count, 10) || 10,
+      page = parseInt(req.query.page, 10) || 0,
+      from = page * count,
+      to = (page + 1) * count,
+      charId = parseInt(req.params.id),
+      character = characters.withId(charId);
+  console.log("Serving comics page", page);
 
   if (!character)
-    res.status(404).json({message: "Character not found", id: id});
+    res.status(404).json({message: "Character not found", id: charId});
   else
-    res.json(comics.withCharacter(character));
+    res.json(comics.withCharacter(character).page(from, to));
 });
 
 app.listen(port);

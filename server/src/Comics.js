@@ -19,7 +19,9 @@ var Comic = require('./Comic.js'),
               });
         });
 
-function Comics() {
+function Comics(comics) {
+  comics = comics || [];
+
   function push(comic) {
     comics.push(comic);
   }
@@ -32,11 +34,12 @@ function Comics() {
   }
 
   function withCharacter(character) {
-    return comics.filter(function (comic) {
+    var filteredComics = comics.filter(function (comic) {
       return comic.characters.map(function (char) {
             return char.id;
           }).indexOf(character.id) !== -1;
     });
+    return Comics(filteredComics);
   }
 
   function replace(comic) {
@@ -74,4 +77,4 @@ function Comics() {
   }
 }
 
-module.exports = Comics();
+module.exports = Comics(comics);
