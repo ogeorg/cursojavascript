@@ -9,7 +9,7 @@
   <script src="lib/bootstrap/js/bootstrap.js"></script>
   <script>
     var server = "http://localhost:8001/";
-    $(document).ready(function(){
+    function loadCharacters() {
       $.get(server + "characters", function(characters){
         var $chars = $("#comicChar");
         characters.forEach(function(character){
@@ -18,25 +18,40 @@
           $chars.append($("<option value='"+id+"'>"+name+"</option>"));
         });
       });
+    }
+    $(document).ready(function(){
+      loadCharacters();
+
 
       $('#submit').click(function(){
-        var ret = true;
-
-        var $comicTitle = $("#comicTitle");
-        if ($comicTitle.val().trim() == "") {
-          $comicTitle.parent().addClass("has-error");
-          ret = false;
-        }
-
-        var $comicChar = $("#comicChar");
-        if ($comicChar.val() == null) {
-          $comicChar.parent().addClass("has-error");
-          ret = false;
-        }
-
-
-        return ret;
+        var characters = $('#comicChar option:selected').map(function() {
+          return {id: this.value, name: this.text};
+        })
+        var data = {
+          title: $('#comicTitle').val(),
+          characters: characters
+        };
+        $.post(server + "comic/" + $('#comicId').val(), data)
+            .done(function(res) {
+              console.log(res);
+              $("#log").html("creado");
+            })
+            .fail(function(jqXHR, textStatus){
+              console.log(jqXHR, textStatus);
+              $("#log").html("problema...");
+            });
+        return false;
       });
+
+      var $inputs = $('#comicId,#comicTitle,#comicChar');
+      function gestionarBoton() {
+        var ok = true;
+        $inputs.each(function() {
+          ok = ok && $(this).parent().hasClass('has-success');
+        });
+        var $submit = $('#submit');
+        $submit.attr("disabled", ok ? null : "disabled");
+      }
 
       function updateGroup(ok, $gp, error) {
         if (ok) {
@@ -46,39 +61,59 @@
           $gp.removeClass("has-success").addClass("has-error");
           $gp.find(".help-block").html(error).show();
         }
+        gestionarBoton();
       }
+
 
       $("#comicId").on("change", function() {
         var $this = $(this);
         var $parent = $this.parent();
         var valor = $this.val();
         if (valor && valor > 1000) {
-
-          var p1 = $.get(server + "comic/" + valor);
-          var p2 = $.get(server + "comic/" + valor);
-
-          //eventos, callbacks y promesas
-
-          p1.then(p2).then(callback)
-
-          $.when(p1, p2).then(callback);
-
-
-          $.ajax(server + "comic/" + valor)
-          .done(function() {
+          var p = $.ajax(server + "comic/" + valor);
+          p.done(function() {
             // exito significa que ha encontrado un comic
             updateGroup(false, $parent, "El comic ya existe");
           })
-          .fail(function() {
-            // error significa que no existe este comic
-            updateGroup(true, $parent);
-            // alert(ajaxContext.responseText)
-          });
+              .fail(function() {
+                // error significa que no existe este comic
+                updateGroup(true, $parent);
+                // alert(ajaxContext.responseText)
+              });
         } else {
           updateGroup(false, $parent, "El identificador debe ser > 1000");
         }
 
+        // p1.then(p2).then(callback)
+        // $.when(p1, p2).then(callback);
+
       });
+
+      $("#comicTitle").on("change", function() {
+        var $this = $(this);
+        var $parent = $this.parent();
+        var valor = $this.val();
+        if (valor && valor.length > 4) {
+          updateGroup(true, $parent);
+        } else {
+          updateGroup(false, $parent, "Título demasiado corto");
+        }
+      });
+
+      $("#comicChar").on("change", function() {
+        var $this = $(this);
+        var $parent = $this.parent();
+        var valor = $this.val();
+        if (valor) {
+          updateGroup(true, $parent);
+        } else {
+          updateGroup(false, $parent, "Seleccionar un personaje");
+        }
+      });
+
+      $("#comicId").trigger("change");
+      $("#comicTitle").trigger("change");
+      $("#comicChar").trigger("change");
     });
   </script>
 </head>
@@ -92,19 +127,22 @@
   <form method="get">
     <div class="form-group">
       <label class="control-label" for="comicId">Id del comic</label>
-      <input class="form-control" type="number" id="comicId" placeholder="123">
+      <input class="form-control" type="number" id="comicId" placeholder="123" value="12345" />
       <div style="display: none" class="help-block"></div>
     </div>
     <div class="form-group">
       <label class="control-label" for="comicTitle">Título</label>
-      <input class="form-control" type="text" id="comicTitle" placeholder="Título">
+      <input class="form-control" type="text" id="comicTitle" placeholder="Título" value="titulo">
+      <div style="display: none" class="help-block"></div>
     </div>
     <div class="form-group">
       <label class="control-label" for="comicChar">Personaje</label>
       <select class="form-control" id="comicChar" multiple>
       </select>
+      <div style="display: none" class="help-block"></div>
     </div>
-    <button id='submit' type="submit" class="btn btn-default">Submit</button>
+    <button id='submit' disabled='disabled' type="submit" class="btn btn-default">Submit</button>
+    <div id="log"></div>
   </form>
 
 </div>
