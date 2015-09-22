@@ -19,7 +19,9 @@ var Comic = require('./Comic.js'),
               });
         });
 
-function Comics() {
+function Comics(comics) {
+  comics = comics || [];
+
   function push(comic) {
     comics.push(comic);
   }
@@ -32,11 +34,12 @@ function Comics() {
   }
 
   function withCharacter(character) {
-    return comics.filter(function (comic) {
+    var filteredComics = comics.filter(function (comic) {
       return comic.characters.map(function (char) {
             return char.id;
           }).indexOf(character.id) !== -1;
     });
+    return Comics(filteredComics);
   }
 
   function replace(comic) {
@@ -51,7 +54,13 @@ function Comics() {
   }
 
   function create(json) {
-    return new Comic(uuid.v4(), json.title, json.characters);
+    var maxId = comics.map(function (comic) {
+      return comic.id;
+    }).reduce(function (a, b) {
+      return a > b ? a : b;
+    }, 0);
+    var id = json.id || maxId + 1;
+    return new Comic(id, json.title, json.characters);
   }
 
   function page(from, to) {
@@ -74,4 +83,4 @@ function Comics() {
   }
 }
 
-module.exports = Comics();
+module.exports = Comics(comics);

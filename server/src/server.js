@@ -38,11 +38,13 @@ app.route('/comic/:id')
         res.json(comic);
     })
     .post(function (req, res) {
+      var json = req.body;
+      json.id = req.params.id;
       var comic = comics.create(req.body);
       console.log("Creating new comic with Id " + comic.id);
 
       comics.push(comic);
-      res.redirect(301, 'http://' + req.headers.host + '/comic/' + comic.id);
+      res.send('http://' + req.headers.host + '/comic/' + comic.id);
     })
     .put(function (req, res) {
       var id = parseInt(req.params.id),
@@ -54,7 +56,7 @@ app.route('/comic/:id')
         res.status(404).json({message: "Comic not found", id: id});
       else {
         comics.replace(changedComic);
-        res.redirect(301, 'http://' + req.headers.host + '/comic/' + changedComic.id);
+        res.send('http://' + req.headers.host + '/comic/' + changedComic.id);
       }
     })
     .delete(function (req, res) {
@@ -71,13 +73,18 @@ app.route('/comic/:id')
     });
 
 app.get('/comic/with-character/:id', function (req, res) {
-  var id = parseInt(req.params.id),
-      character = characters.withId(id);
+  var count = parseInt(req.query.count, 10) || 10,
+      page = parseInt(req.query.page, 10) || 0,
+      from = page * count,
+      to = (page + 1) * count,
+      charId = parseInt(req.params.id),
+      character = characters.withId(charId);
+  console.log("Serving comics page", page);
 
   if (!character)
-    res.status(404).json({message: "Character not found", id: id});
+    res.status(404).json({message: "Character not found", id: charId});
   else
-    res.json(comics.withCharacter(character));
+    res.json(comics.withCharacter(character).page(from, to));
 });
 
 app.listen(port);
