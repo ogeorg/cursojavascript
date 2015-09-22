@@ -54,7 +54,13 @@ function Comics(comics) {
   }
 
   function create(json) {
-    return new Comic(uuid.v4(), json.title, json.characters);
+    var maxId = comics.map(function (comic) {
+      return comic.id;
+    }).reduce(function (a, b) {
+      return a > b ? a : b;
+    }, 0);
+    var id = json.id || maxId + 1;
+    return new Comic(id, json.title, json.characters);
   }
 
   function page(from, to) {
