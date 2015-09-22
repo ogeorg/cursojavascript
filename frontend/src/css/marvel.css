@@ -1,3 +1,11 @@
 body {
   /* padding-top: 50px; */
 }
+
+header {
+  padding: 10px;
+  background-color: #cccccc;
+}
+.content {
+  padding: 10px;
+}

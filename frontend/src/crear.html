@@ -33,7 +33,51 @@
           $comicChar.parent().addClass("has-error");
           ret = false;
         }
+
+
         return ret;
+      });
+
+      function updateGroup(ok, $gp, error) {
+        if (ok) {
+          $gp.removeClass("has-error").addClass("has-success");
+          $gp.find(".help-block").hide();
+        } else {
+          $gp.removeClass("has-success").addClass("has-error");
+          $gp.find(".help-block").html(error).show();
+        }
+      }
+
+      $("#comicId").on("change", function() {
+        var $this = $(this);
+        var $parent = $this.parent();
+        var valor = $this.val();
+        if (valor && valor > 1000) {
+
+          var p1 = $.get(server + "comic/" + valor);
+          var p2 = $.get(server + "comic/" + valor);
+
+          //eventos, callbacks y promesas
+
+          p1.then(p2).then(callback)
+
+          $.when(p1, p2).then(callback);
+
+
+          $.ajax(server + "comic/" + valor)
+          .done(function() {
+            // exito significa que ha encontrado un comic
+            updateGroup(false, $parent, "El comic ya existe");
+          })
+          .fail(function() {
+            // error significa que no existe este comic
+            updateGroup(true, $parent);
+            // alert(ajaxContext.responseText)
+          });
+        } else {
+          updateGroup(false, $parent, "El identificador debe ser > 1000");
+        }
+
       });
     });
   </script>
@@ -47,15 +91,16 @@
   <h1>Introduzca un nuevo comic</h1>
   <form method="get">
     <div class="form-group">
-      <label for="comicId">Id del comic</label>
-      <input type="number" id="comicId" placeholder="123">
+      <label class="control-label" for="comicId">Id del comic</label>
+      <input class="form-control" type="number" id="comicId" placeholder="123">
+      <div style="display: none" class="help-block"></div>
     </div>
     <div class="form-group">
-      <label for="comicTitle">Título</label>
-      <input type="text" id="comicTitle" placeholder="Título">
+      <label class="control-label" for="comicTitle">Título</label>
+      <input class="form-control" type="text" id="comicTitle" placeholder="Título">
     </div>
     <div class="form-group">
-      <label for="comicChar">Personaje</label>
+      <label class="control-label" for="comicChar">Personaje</label>
       <select class="form-control" id="comicChar" multiple>
       </select>
     </div>
