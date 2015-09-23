@@ -22,5 +22,5 @@ Lanzar el frontend
 
 URLs:
 
-    <http://zeroturnaround.com/rebellabs/java-8-explained-applying-lambdas-to-java-collections>
+    (http://zeroturnaround.com/rebellabs/java-8-explained-applying-lambdas-to-java-collections)
     <http://www.nurkiewicz.com/2013/05/java-8-definitive-guide-to.html>
