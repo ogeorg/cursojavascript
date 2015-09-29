@@ -3,6 +3,7 @@
 Luis Artola
 
     luis.artola@buntplanet.com
+    guillermo.gutierrez@buntplanet.com
 
 Actualizar el código desde el repositorio de ellos
 
